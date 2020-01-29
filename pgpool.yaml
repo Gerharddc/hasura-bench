@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgpool
+spec:
+  selector:
+    app: pgpool
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgpool
+  labels:
+    app: pgpool
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pgpool
+  template:
+    metadata:
+      labels:
+        app: pgpool
+    spec:
+      containers:
+        - name: pgpool
+          image: gerharddc/pgpool:slim
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+          env:
+            - name: MASTER_HOSTNAME
+              value: "timescale"
+            - name: MASTER_PORT
+              value: "5432"
+            - name: MASTER_WEIGHT
+              value: "1"
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescale-timescaledb-passwords
+                  key: postgres
+            - name: REPLICA_HOSTNAME
+              value: "timescale-replica"
+            - name: REPLICA_PORT
+              value: "5432"
+            - name: REPLICA_WEIGHT
+              value: "10"
+            - name: USERNAME
+              value: "postgres"
