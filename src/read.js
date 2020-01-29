@@ -22,7 +22,7 @@ async function run() {
   startTime = new Date();
   const arr = [];
   for (let i = 0; i < 10; i++) {
-    const res = await request("http://127.0.0.1:8080/v1/graphql", query);
+    const res = await request("http://hasura:8080/v1/graphql", query);
     arr.push(res);
   }
   await Promise.all(arr);
